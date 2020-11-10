@@ -52,15 +52,20 @@
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                o.ro = mul(unity_WorldToObject, float4(_WorldSpaceCameraPos, 1));
-                o.hitPos = v.vertex;
+                o.ro = _WorldSpaceCameraPos;//mul(unity_WorldToObject, float4(_WorldSpaceCameraPos, 1));
+                o.hitPos = mul(unity_ObjectToWorld, v.vertex);
                 return o;
             }
 
             float GetDist(float3 p)
             {
-                float d = length(p) - .5; // sphere
-                d = length(float2(length(p.xz) - .5, p.y)) - .1; //torus
+                float3 bp = p;
+
+                //float3 n = normalize(float3(1.0, 1.0, 1.0));
+                //bp -= 2.*min(0., dot(p, n));
+                bp = abs(bp);
+                //bp.z += sin(bp.x) * 3.;
+                float d = length(bp - float3(6.0, 2.0, 4.0)) - 1.; // sphere
 
                 return d;
             }
@@ -95,7 +100,6 @@
 
             fixed4 frag(v2f i) : SV_Target
             {
-                float2 uv = i.uv - 0.5;
                 float3 ro = i.ro; // float3(0, 0, -3);
                 float3 rd = normalize(i.hitPos - ro); // normalize(float3(uv.x, uv.y, 1));
 

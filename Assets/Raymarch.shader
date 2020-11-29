@@ -25,8 +25,8 @@
 
             #define MAX_STEPS 100
             #define MAX_DIST 100
-            #define SURF_DIST 0.001
-
+            #define SURF_DIST 0.0001
+            
             struct appdata
             {
                 float4 vertex : POSITION;
@@ -46,6 +46,8 @@
             fixed4 _LightPos;
             fixed4 _Color;
             float _Gamma;
+            StructuredBuffer<float4> spheres;
+            int numberOfSpheres;
 
             v2f vert(appdata v)
             {
@@ -57,15 +59,23 @@
                 return o;
             }
 
+            float smin( float a, float b, float k )
+            {
+                float res = exp2( -k*a ) + exp2( -k*b );
+                return -log2( res )/k;
+            }
+
             float GetDist(float3 p)
             {
                 float3 bp = p;
 
-                //float3 n = normalize(float3(1.0, 1.0, 1.0));
-                //bp -= 2.*min(0., dot(p, n));
-                bp = abs(bp);
-                //bp.z += sin(bp.x) * 3.;
-                float d = length(bp - float3(6.0, 2.0, 4.0)) - 1.; // sphere
+                float d = MAX_DIST;
+                for (int i = 0; i < numberOfSpheres; i++)
+                {
+                    float3 center = spheres[i].xyz;
+                    float radius = spheres[i].w / 2.0;
+                    d = smin(d, length(bp - center) - radius, 3);
+                }
 
                 return d;
             }
@@ -100,6 +110,7 @@
 
             fixed4 frag(v2f i) : SV_Target
             {
+                float3 base = float3(0.4, 0.8, 0.9);
                 float3 ro = i.ro; // float3(0, 0, -3);
                 float3 rd = normalize(i.hitPos - ro); // normalize(float3(uv.x, uv.y, 1));
 
@@ -124,8 +135,14 @@
                     float3 outColor = pow(litColor, float3(1.0 / _Gamma, 1.0 / _Gamma, 1.0 / _Gamma));
 
                     col = float4(outColor.xyz, 1.0);
+                    float s = 0.2 + (1-( d / 100.0)) * 0.8 ;
+                    col = col * 0.1 + float4(base * s, 1.0) * 0.9;
                 }
-                else discard; //dont even render this pixel
+                else
+                {
+                    float s = 0.2 ;
+                    col = float4(base * s, 1.0);//float4(outColor.xyz, 1.0);
+                }//discard; //dont even render this pixel
 
                 return col;
             }

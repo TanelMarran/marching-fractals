@@ -20,14 +20,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9302f5e2-9030-4e32-81f5-b0ea5cde53df" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.marching-fractals/.idea/indexLayout.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.marching-fractals/.idea/indexLayout.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.marching-fractals/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.marching-fractals/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Raymarch.shader" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Raymarch.shader" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/CameraMovement.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/CameraMovement.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/UpdateShader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UpdateShader.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Packages/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/Packages/manifest.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/ProjectVersion.txt" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/ProjectVersion.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,7 +89,9 @@
       <workItem from="1604928173125" duration="7442000" />
       <workItem from="1605007956923" duration="4653000" />
       <workItem from="1605121663256" duration="785000" />
-      <workItem from="1606608854011" duration="2215000" />
+      <workItem from="1606608854011" duration="2439000" />
+      <workItem from="1607072014969" duration="10612000" />
+      <workItem from="1607101204579" duration="216000" />
     </task>
     <servers />
   </component>
@@ -117,6 +116,10 @@
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
   </component>
   <component name="WindowStateProjectService">
+    <state x="1038" y="482" key="RollbackChangesDialog" timestamp="1607074281881">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="1038" y="482" key="RollbackChangesDialog/0.0.2560.1400@0.0.2560.1400" timestamp="1607074281881" />
     <state x="2708" y="695" key="SettingsEditor" timestamp="1604936302363">
       <screen x="2560" y="659" width="1920" height="1040" />
     </state>

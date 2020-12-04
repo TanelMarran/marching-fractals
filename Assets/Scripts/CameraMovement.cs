@@ -40,12 +40,12 @@ public class CameraMovement : MonoBehaviour
 
         if (Input.GetKey(KeyCode.Space))
         {
-            transform.Translate(new Vector3(0,movementSpeed * Time.deltaTime,0));
+            transform.Translate(new Vector3(0,movementSpeed * Time.deltaTime,0), Space.World);
         }
 
         if (Input.GetKey(KeyCode.LeftControl))
         {
-            transform.Translate(new Vector3(0,-movementSpeed * Time.deltaTime,0));
+            transform.Translate(new Vector3(0,-movementSpeed * Time.deltaTime,0), Space.World);
         }
 
         if (Input.GetKey(KeyCode.Mouse2))

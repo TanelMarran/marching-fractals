@@ -26,6 +26,7 @@
             #define MAX_STEPS 100
             #define MAX_DIST 100
             #define SURF_DIST 0.0001
+            #define SPACE_SIZE 10
             
             struct appdata
             {
@@ -54,7 +55,7 @@
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                o.ro = _WorldSpaceCameraPos;//mul(unity_WorldToObject, float4(_WorldSpaceCameraPos, 1));
+                o.ro = _WorldSpaceCameraPos;
                 o.hitPos = mul(unity_ObjectToWorld, v.vertex);
                 return o;
             }
@@ -67,7 +68,7 @@
 
             float GetDist(float3 p)
             {
-                float3 bp = p;
+                float3 bp = fmod( p, SPACE_SIZE);
 
                 float d = MAX_DIST;
                 for (int i = 0; i < numberOfSpheres; i++)
@@ -80,6 +81,17 @@
                 return d;
             }
 
+            float3 GetRegion(float3 p)
+            {
+                return (p - fmod(p, SPACE_SIZE)) / SPACE_SIZE;
+            }
+
+            float RestrictToRegion(float3 p, float3 d)
+            {
+                float3 r = GetRegion(p);
+                return length(clamp(p + d, r * SPACE_SIZE, (r + 1) * SPACE_SIZE) - p);
+            }
+
             float Raymarch(float3 ro, float3 rd)
             {
                 float dO = 0;
@@ -88,8 +100,16 @@
                 {
                     float3 p = ro + dO * rd;
                     dS = GetDist(p);
-                    dO += dS;
-                    if (dS < SURF_DIST || dO > MAX_DIST) break;
+                    if (all(GetRegion(ro + (dO + dS) * rd) == GetRegion(p)))
+                    {
+                        dO += dS;
+                        if (dS < SURF_DIST || dO > MAX_DIST) break;
+                    } else
+                    {
+                        float dR = RestrictToRegion(p, dS * rd);
+                        dO += min(dS, dR);
+                        if (dO > MAX_DIST) break;
+                    }
                 }
 
                 return dO;
@@ -135,8 +155,8 @@
                     float3 outColor = pow(litColor, float3(1.0 / _Gamma, 1.0 / _Gamma, 1.0 / _Gamma));
 
                     col = float4(outColor.xyz, 1.0);
-                    float s = 0.2 + (1-( d / 100.0)) * 0.8 ;
-                    col = col * 0.1 + float4(base * s, 1.0) * 0.9;
+                    //float s = 0.2 + (1-( d / 100.0)) * 0.8 ;
+                    //col = col * 0.5 + float4(base * s, 1.0) * 0.5;
                 }
                 else
                 {

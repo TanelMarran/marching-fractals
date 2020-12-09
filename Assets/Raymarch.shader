@@ -4,7 +4,7 @@
     {
         _MainTex ("Texture", 2D) = "white" {}
         _LightPos ("Light Position", Vector) = (0.0, 4.05, -3.62, 1.0)
-        _Color ("Color", Color) = (0.5, 0.75, 0.75, 1.0)
+        _Color ("Color", Color) = (1.0, 1.0, 1.0, 1.0)
         _Gamma ("Gamma", Float) = 2.2
     }
     SubShader
@@ -23,10 +23,10 @@
 
             #include "UnityCG.cginc"
 
-            #define MAX_STEPS 100
-            #define MAX_DIST 100
-            #define SURF_DIST 0.0001
-            #define SPACE_SIZE 10
+            #define MAX_STEPS 200 // The maximum steps a ray can march
+            #define MAX_DIST 70 // The maximum distance a ray can march
+            #define SURF_DIST 0.00001 // The distance at which something is considered a surface
+            #define SPACE_SIZE 3 // Used in space warping
             
             struct appdata
             {
@@ -60,7 +60,7 @@
                 return o;
             }
 
-            float smin( float a, float b, float k )
+            float smin( float a, float b, float k ) //Selects the minimum but *smoothly*. Makes objects blend together.
             {
                 float res = exp2( -k*a ) + exp2( -k*b );
                 return -log2( res )/k;
@@ -68,54 +68,46 @@
 
             float GetDist(float3 p)
             {
-                float3 bp = fmod( p, SPACE_SIZE);
+                float3 bp = abs(fmod(p, SPACE_SIZE)); //fmod loops space, abs mirrors the effect to make it loop infinitely in all directions
 
                 float d = MAX_DIST;
-                for (int i = 0; i < numberOfSpheres; i++)
+                for (int i = 0; i < numberOfSpheres; i++) //Loop of all circles in scene
                 {
-                    float3 center = spheres[i].xyz;
-                    float radius = spheres[i].w / 2.0;
-                    d = smin(d, length(bp - center) - radius, 3);
+                    float3 center = spheres[i].xyz; //Sphere center
+                    float radius = spheres[i].w / 2.0; // radius
+                    d = smin(d, length(bp - center) - radius, 3); // Distance from the current point to the edge of the closest sphere
                 }
 
                 return d;
             }
 
-            float3 GetRegion(float3 p)
+            float3 GetRegion(float3 p) // Not used currently
             {
-                return (p - fmod(p, SPACE_SIZE)) / SPACE_SIZE;
+                return floor(p / SPACE_SIZE);
             }
 
-            float RestrictToRegion(float3 p, float3 d)
+            float RestrictToRegion(float3 p, float3 d) // Not used currently
             {
                 float3 r = GetRegion(p);
                 return length(clamp(p + d, r * SPACE_SIZE, (r + 1) * SPACE_SIZE) - p);
             }
 
-            float Raymarch(float3 ro, float3 rd)
+            float2 Raymarch(float3 ro, float3 rd)
             {
-                float dO = 0;
-                float dS;
+                float dO = 0; //The distance from the origin (camera) / distance the ray has marched
+                float dS; //The distance to the scene (closest object) in the current step
                 for (int i = 0; i < MAX_STEPS; i++)
                 {
-                    float3 p = ro + dO * rd;
-                    dS = GetDist(p);
-                    if (all(GetRegion(ro + (dO + dS) * rd) == GetRegion(p)))
-                    {
-                        dO += dS;
-                        if (dS < SURF_DIST || dO > MAX_DIST) break;
-                    } else
-                    {
-                        float dR = RestrictToRegion(p, dS * rd);
-                        dO += min(dS, dR);
-                        if (dO > MAX_DIST) break;
-                    }
+                    float3 p = ro + dO * rd; //Gets the current point by adding the distance marched to the origin
+                    dS = GetDist(p); //Get distance to scene
+                    dO += dS; //Add the found distance to the total marched distance
+                    if (dS < SURF_DIST || dO > MAX_DIST) break; //If we hit an object or reach the render distance, end the loop.
                 }
 
                 return dO;
             }
 
-            float3 GetNormal(float3 p)
+            float3 GetNormal(float3 p) //Gets normals by sampling nearby points and and constructing a plane out of them
             {
                 float2 e = float2(0.01, 0);
 
@@ -130,11 +122,11 @@
 
             fixed4 frag(v2f i) : SV_Target
             {
-                float3 base = float3(0.4, 0.8, 0.9);
+                float3 base = _Color * float3(0.8, 1.25, 0.95) / 1.25;
                 float3 ro = i.ro; // float3(0, 0, -3);
                 float3 rd = normalize(i.hitPos - ro); // normalize(float3(uv.x, uv.y, 1));
 
-                float d = Raymarch(ro, rd);
+                float d = Raymarch(ro, rd); //Gets the distance one ray travels
                 fixed4 col = 0;
 
                 if (d < MAX_DIST)
@@ -155,12 +147,13 @@
                     float3 outColor = pow(litColor, float3(1.0 / _Gamma, 1.0 / _Gamma, 1.0 / _Gamma));
 
                     col = float4(outColor.xyz, 1.0);
-                    //float s = 0.2 + (1-( d / 100.0)) * 0.8 ;
-                    //col = col * 0.5 + float4(base * s, 1.0) * 0.5;
+                    float s = 0.2;
+                    float dp = d / MAX_DIST;
+                    col = col * (1 - dp) + float4(base * s, 1.0) * dp;
                 }
                 else
                 {
-                    float s = 0.2 ;
+                    float s = 0.2;
                     col = float4(base * s, 1.0);//float4(outColor.xyz, 1.0);
                 }//discard; //dont even render this pixel
 

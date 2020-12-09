@@ -23,8 +23,6 @@
       <change beforePath="$PROJECT_DIR$/.idea/.idea.marching-fractals/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.marching-fractals/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Raymarch.shader" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Raymarch.shader" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/CameraMovement.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/CameraMovement.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UpdateShader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UpdateShader.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -91,8 +89,17 @@
       <workItem from="1605121663256" duration="785000" />
       <workItem from="1606608854011" duration="2439000" />
       <workItem from="1607072014969" duration="10612000" />
-      <workItem from="1607101204579" duration="216000" />
+      <workItem from="1607101204579" duration="880000" />
+      <workItem from="1607540199494" duration="8165000" />
     </task>
+    <task id="LOCAL-00001" summary="Initial space warp fix">
+      <created>1607101602490</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1607101602490</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -114,8 +121,14 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+    <MESSAGE value="Initial space warp fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="Initial space warp fix" />
   </component>
   <component name="WindowStateProjectService">
+    <state x="1237" y="247" key="CommitChangelistDialog2" timestamp="1607101601833">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="1237" y="247" key="CommitChangelistDialog2/0.0.2560.1400@0.0.2560.1400" timestamp="1607101601833" />
     <state x="1038" y="482" key="RollbackChangesDialog" timestamp="1607074281881">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>

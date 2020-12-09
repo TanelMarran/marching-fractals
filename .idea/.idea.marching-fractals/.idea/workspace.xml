@@ -19,11 +19,7 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9302f5e2-9030-4e32-81f5-b0ea5cde53df" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.marching-fractals/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.marching-fractals/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Raymarch.shader" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Raymarch.shader" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/SampleScene.unity" afterDir="false" />
-    </list>
+    <list default="true" id="9302f5e2-9030-4e32-81f5-b0ea5cde53df" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -90,7 +86,7 @@
       <workItem from="1606608854011" duration="2439000" />
       <workItem from="1607072014969" duration="10612000" />
       <workItem from="1607101204579" duration="880000" />
-      <workItem from="1607540199494" duration="8165000" />
+      <workItem from="1607540199494" duration="8318000" />
     </task>
     <task id="LOCAL-00001" summary="Initial space warp fix">
       <created>1607101602490</created>

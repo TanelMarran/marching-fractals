@@ -30,4 +30,4 @@ Material:
     - _MandelIterations: 100
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _LightPos: {r: 0, g: 4.05, b: -3.62, a: 1}
+    - _LightPos: {r: 2.52, g: 1.19, b: -6.64, a: 1}

@@ -7,17 +7,20 @@ public class UpdateShader : MonoBehaviour
     public Transform lightTransform;
     public Material material;
 
+    private Vector3 lightDirection;
+
     private ComputeBuffer _buffer;
     private int amountOfSpheres;
     private GameObject[] sphereObjects;
-    private static readonly int LightPos = Shader.PropertyToID("_LightPos");
+    private static readonly int LightDir = Shader.PropertyToID("_LightDir");
     private static readonly int Spheres = Shader.PropertyToID("spheres");
     private static readonly int NumberOfSpheres = Shader.PropertyToID("numberOfSpheres");
     
     void Update()
     {
-        Vector3 lightPosition = lightTransform.position;
-        material.SetVector(LightPos, new Vector4(lightPosition.x, lightPosition.y, lightPosition.z, 1.0f));
+        lightDirection = -lightTransform.forward;
+        
+        material.SetVector(LightDir, new Vector4(lightDirection.x, lightDirection.y, lightDirection.z, 1.0f));
         UpdateBuffer();
     }
 

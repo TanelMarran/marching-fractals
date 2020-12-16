@@ -3,7 +3,7 @@
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _LightPos ("Light Position", Vector) = (0.0, 4.05, -3.62, 1.0)
+        _LightDir ("Light Position", Vector) = (0.0, 4.05, -3.62, 1.0)
         _Color ("Color", Color) = (1.0, 1.0, 1.0, 1.0)
         _Gamma ("Gamma", Float) = 2.2
     }
@@ -44,7 +44,7 @@
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            fixed4 _LightPos;
+            fixed4 _LightDir;
             fixed4 _Color;
             float _Gamma;
             StructuredBuffer<float4> spheres;
@@ -135,11 +135,10 @@
                     float3 n = GetNormal(p);
                     col.rgb = n;
 
-                    float3 lightPos = _LightPos.xyz;
                     float3 vertexPos = normalize(i.vertex);
 
                     float3 v = normalize(- vertexPos);
-                    float3 l = normalize(lightPos - vertexPos);
+                    float3 l = normalize(_LightDir.xyz);
                     float3 h = normalize(l + v);
 
                     float3 gammaColor = pow(_Color.xyz, float3(_Gamma, _Gamma, _Gamma));

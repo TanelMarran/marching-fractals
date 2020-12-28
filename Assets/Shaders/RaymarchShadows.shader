@@ -1,11 +1,11 @@
-﻿Shader "Unlit/Raymarch"
+﻿Shader "Unlit/RaymarchShadows"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _LightDir ("Light Position", Vector) = (0.0, 4.05, -3.62, 1.0)
+        _LightDir ("Light Direction", Vector) = (0.0, 0.0, 0.0, 1.0)
         _Color ("Color", Color) = (1.0, 1.0, 1.0, 1.0)
-        _Gamma ("Gamma", Float) = 2.2
+        _ShadowSoftness ("Shadow Softness", Range(0, 128)) = 10.0
     }
     SubShader
     {
@@ -24,10 +24,10 @@
             #include "UnityCG.cginc"
 
             #define MAX_STEPS 200 // The maximum steps a ray can march
-            #define MAX_DIST 70 // The maximum distance a ray can march
+            #define MAX_DIST 70. // The maximum distance a ray can march
             #define SURF_DIST 0.00001 // The distance at which something is considered a surface
             #define SPACE_SIZE 3 // Used in space warping
-            
+
             struct appdata
             {
                 float4 vertex : POSITION;
@@ -46,9 +46,9 @@
             float4 _MainTex_ST;
             fixed4 _LightDir;
             fixed4 _Color;
-            float _Gamma;
             StructuredBuffer<float4> spheres;
-            int numberOfSpheres;
+            uniform int numberOfSpheres;
+            uniform float _ShadowSoftness;
 
             v2f vert(appdata v)
             {
@@ -60,36 +60,31 @@
                 return o;
             }
 
-            float smin( float a, float b, float k ) //Selects the minimum but *smoothly*. Makes objects blend together.
+            float smin(float a, float b, float k) //Selects the minimum but *smoothly*. Makes objects blend together.
             {
-                float res = exp2( -k*a ) + exp2( -k*b );
-                return -log2( res )/k;
+                float res = exp2(-k * a) + exp2(-k * b);
+                return -log2(res) / k;
+            }
+
+            float sdPlane(float3 p, float3 n, float h)
+            {
+                // n must be normalized
+                return dot(p, n) + h;
             }
 
             float GetDist(float3 p)
             {
-                float3 bp = abs(fmod(p, SPACE_SIZE)); //fmod loops space, abs mirrors the effect to make it loop infinitely in all directions
-
                 float d = MAX_DIST;
                 for (int i = 0; i < numberOfSpheres; i++) //Loop of all circles in scene
                 {
                     float3 center = spheres[i].xyz; //Sphere center
                     float radius = spheres[i].w / 2.0; // radius
-                    d = smin(d, length(bp - center) - radius, 3); // Distance from the current point to the edge of the closest sphere
+                    d = smin(d, length(p - center) - radius, 3);
+                    // Distance from the current point to the edge of the closest sphere
                 }
+                d = min(d, sdPlane(p, float3(0, 1, 0), 0));
 
                 return d;
-            }
-
-            float3 GetRegion(float3 p) // Not used currently
-            {
-                return floor(p / SPACE_SIZE);
-            }
-
-            float RestrictToRegion(float3 p, float3 d) // Not used currently
-            {
-                float3 r = GetRegion(p);
-                return length(clamp(p + d, r * SPACE_SIZE, (r + 1) * SPACE_SIZE) - p);
             }
 
             float2 Raymarch(float3 ro, float3 rd)
@@ -101,7 +96,8 @@
                     float3 p = ro + dO * rd; //Gets the current point by adding the distance marched to the origin
                     dS = GetDist(p); //Get distance to scene
                     dO += dS; //Add the found distance to the total marched distance
-                    if (dS < SURF_DIST || dO > MAX_DIST) break; //If we hit an object or reach the render distance, end the loop.
+                    if (dS < SURF_DIST || dO > MAX_DIST) break;
+                    //If we hit an object or reach the render distance, end the loop.
                 }
 
                 return dO;
@@ -120,6 +116,34 @@
                 return normalize(n);
             }
 
+            float HardShadow(float3 ro, float3 rd, float mint, float maxt)
+            {
+                for (float t = mint; t < maxt;)
+                {
+                    float distanceToLightSource = GetDist(ro + rd * t);
+                    if (distanceToLightSource < SURF_DIST)
+                    {
+                        return 0.0;
+                    }
+                    t += distanceToLightSource;
+                }
+                return 1.0;
+            }
+
+            float SoftShadow(const float3 ro, const float3 rd, const float mint, const float maxt, const float softness)
+            {
+                float result = 1.0;
+                for (float t = mint; t < maxt;)
+                {
+                    const float distanceTowardsLight = GetDist(ro + rd * t);
+                    if (distanceTowardsLight < 0.001)
+                        return 0.0;
+                    result = min(result, softness * distanceTowardsLight / t);
+                    t += distanceTowardsLight;
+                }
+                return result;
+            }
+
             fixed4 frag(v2f i) : SV_Target
             {
                 float3 base = _Color * float3(0.8, 1.25, 0.95) / 1.25;
@@ -127,34 +151,35 @@
                 float3 rd = normalize(i.hitPos - ro); // normalize(float3(uv.x, uv.y, 1));
 
                 float d = Raymarch(ro, rd); //Gets the distance one ray travels
-                fixed4 col = 0;
+                fixed4 col;
 
                 if (d < MAX_DIST)
                 {
                     float3 p = ro + d * rd;
                     float3 n = GetNormal(p);
-                    col.rgb = n;
 
+                    // Lighting
                     float3 vertexPos = normalize(i.vertex);
-
                     float3 v = normalize(- vertexPos);
                     float3 l = normalize(_LightDir.xyz);
                     float3 h = normalize(l + v);
 
-                    float3 gammaColor = pow(_Color.xyz, float3(_Gamma, _Gamma, _Gamma));
-                    float3 litColor = gammaColor * (0.1 + max(0.0, dot(n, l))) + pow(max(0.0, dot(n, h)), 200.0);
-                    float3 outColor = pow(litColor, float3(1.0 / _Gamma, 1.0 / _Gamma, 1.0 / _Gamma));
+                    float3 litColor = _Color.xyz * (0.1 + max(0.0, dot(n, l))) + pow(max(0.0, dot(n, h)), 200.0);
 
-                    col = float4(outColor.xyz, 1.0);
+                    col = float4(litColor.xyz, 1.0);
                     float s = 0.2;
                     float dp = d / MAX_DIST;
                     col = col * (1 - dp) + float4(base * s, 1.0) * dp;
+
+                    // Shadow
+                    float shadow = SoftShadow(p, l, 0.1, 100, _ShadowSoftness);
+                    col *= shadow;
                 }
                 else
                 {
                     float s = 0.2;
-                    col = float4(base * s, 1.0);//float4(outColor.xyz, 1.0);
-                }//discard; //dont even render this pixel
+                    col = float4(base * s, 1.0); //float4(outColor.xyz, 1.0);
+                } //discard; //dont even render this pixel
 
                 return col;
             }

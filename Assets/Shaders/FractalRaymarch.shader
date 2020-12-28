@@ -5,7 +5,6 @@
         _MainTex ("Texture", 2D) = "white" {}
         _LightPos ("Light Position", Vector) = (0.0, 4.05, -3.62, 1.0)
         _Color ("Color", Color) = (1.0, 1.0, 1.0, 1.0)
-        _Gamma ("Gamma", Float) = 2.2
         _MandelDegree ("Madelbulb degree", Float) = 8.0
         _MandelIterations ("Madelbulb iterations", int) = 100.0
         SURF_DIST ("Surface Distance", float) = 0.01
@@ -30,7 +29,7 @@
             #define MAX_DIST 300 // The maximum distance a ray can march
             //#define SURF_DIST 0.001 // The distance at which something is considered a surface
             #define SPACE_SIZE 3 // Used in space warping
-            
+
             struct appdata
             {
                 float4 vertex : POSITION;
@@ -49,7 +48,6 @@
             float4 _MainTex_ST;
             fixed4 _LightPos;
             fixed4 _Color;
-            float _Gamma;
             float _MandelDegree;
             float _MandelIterations;
             float SURF_DIST;
@@ -66,36 +64,37 @@
                 return o;
             }
 
-            float smin( float a, float b, float k ) //Selects the minimum but *smoothly*. Makes objects blend together.
+            float smin(float a, float b, float k) //Selects the minimum but *smoothly*. Makes objects blend together.
             {
-                float res = exp2( -k*a ) + exp2( -k*b );
-                return -log2( res )/k;
+                float res = exp2(-k * a) + exp2(-k * b);
+                return -log2(res) / k;
             }
 
             float GetDist(float3 p)
             {
-	            float3 z = p;
-	            float dr = 1.0;
-	            float r = 0.0;
-	            for (int i = 0; i < 20 ; i++) {
-		            r = length(z);
-		            if (r>4.0) break;
-		            // convert to polar coordinates
-		            float theta = acos(z.z/r);
-		            float phi = atan2(z.y,z.x);
-		            dr =  pow( r, _MandelDegree-1.0)*_MandelDegree*dr + 1.0;
-		            
-		            // scale and rotate the point
-		            float zr = pow( r,_MandelDegree);
-		            theta = theta*_MandelDegree;
-		            phi = phi*_MandelDegree;
-		            
-		            // convert back to cartesian coordinates
-		            z = zr*float3(sin(theta)*cos(phi), sin(phi)*sin(theta), cos(theta));
-		            z += p;
-	            }
+                float3 z = p;
+                float dr = 1.0;
+                float r = 0.0;
+                for (int i = 0; i < 20; i++)
+                {
+                    r = length(z);
+                    if (r > 4.0) break;
+                    // convert to polar coordinates
+                    float theta = acos(z.z / r);
+                    float phi = atan2(z.y, z.x);
+                    dr = pow(r, _MandelDegree - 1.0) * _MandelDegree * dr + 1.0;
 
-	            return 0.5*log(r)*r/dr;
+                    // scale and rotate the point
+                    float zr = pow(r, _MandelDegree);
+                    theta = theta * _MandelDegree;
+                    phi = phi * _MandelDegree;
+
+                    // convert back to cartesian coordinates
+                    z = zr * float3(sin(theta) * cos(phi), sin(phi) * sin(theta), cos(theta));
+                    z += p;
+                }
+
+                return 0.5 * log(r) * r / dr;
             }
 
             float3 GetRegion(float3 p) // Not used currently
@@ -118,7 +117,8 @@
                     float3 p = ro + dO * rd; //Gets the current point by adding the distance marched to the origin
                     dS = GetDist(p); //Get distance to scene
                     dO += dS; //Add the found distance to the total marched distance
-                    if (dS < SURF_DIST || dO > MAX_DIST) break; //If we hit an object or reach the render distance, end the loop.
+                    if (dS < SURF_DIST || dO > MAX_DIST) break;
+                    //If we hit an object or reach the render distance, end the loop.
                 }
 
                 return dO;
@@ -144,13 +144,12 @@
                 float3 rd = normalize(i.hitPos - ro); // normalize(float3(uv.x, uv.y, 1));
 
                 float d = Raymarch(ro, rd); //Gets the distance one ray travels
-                fixed4 col = 0;
+                fixed4 col;
 
                 if (d < MAX_DIST)
                 {
                     float3 p = ro + d * rd;
                     float3 n = GetNormal(p);
-                    col.rgb = n;
 
                     float3 lightPos = _LightPos.xyz;
                     float3 vertexPos = normalize(i.vertex);
@@ -159,17 +158,15 @@
                     float3 l = normalize(lightPos - vertexPos);
                     float3 h = normalize(l + v);
 
-                    float3 gammaColor = pow(_Color.xyz, float3(_Gamma, _Gamma, _Gamma));
-                    float3 litColor = gammaColor * (0.1 + max(0.0, dot(n, l))) + pow(max(0.0, dot(n, h)), 200.0);
-                    float3 outColor = pow(litColor, float3(1.0 / _Gamma, 1.0 / _Gamma, 1.0 / _Gamma));
+                    float3 litColor = _Color.xyz * (0.1 + max(0.0, dot(n, l))) + pow(max(0.0, dot(n, h)), 200.0);
 
-                    col = float4(outColor.xyz, 1.0);
+                    col = float4(litColor.xyz, 1.0);
                 }
                 else
                 {
                     float s = 0.2;
-                    col = float4(base * s, 1.0);//float4(outColor.xyz, 1.0);
-                }//discard; //dont even render this pixel
+                    col = float4(base * s, 1.0); //float4(outColor.xyz, 1.0);
+                } //discard; //dont even render this pixel
 
                 return col;
             }

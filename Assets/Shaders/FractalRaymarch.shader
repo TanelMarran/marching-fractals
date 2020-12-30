@@ -8,6 +8,9 @@
         _MandelDegree ("Madelbulb degree", Float) = 8.0
         _MandelIterations ("Madelbulb iterations", int) = 100.0
         SURF_DIST ("Surface Distance", float) = 0.01
+        MAX_ITERATIONS ("Iterations", int) = 300
+        DEPTH_OF_FIELD ("Depth of field", int) = 4
+        POWER ("Power", int) = 2
     }
     SubShader
     {
@@ -25,8 +28,8 @@
 
             #include "UnityCG.cginc"
 
-            #define MAX_STEPS 200 // The maximum steps a ray can march
-            #define MAX_DIST 300 // The maximum distance a ray can march
+            #define MAX_STEPS 600 // The maximum steps a ray can march
+            #define MAX_DIST 600 // The maximum distance a ray can march
             //#define SURF_DIST 0.001 // The distance at which something is considered a surface
             #define SPACE_SIZE 3 // Used in space warping
 
@@ -51,6 +54,9 @@
             float _MandelDegree;
             float _MandelIterations;
             float SURF_DIST;
+            float MAX_ITERATIONS;
+            float DEPTH_OF_FIELD;
+            int POWER;
             StructuredBuffer<float4> spheres;
             int numberOfSpheres;
 
@@ -73,28 +79,27 @@
             float GetDist(float3 p)
             {
                 float3 z = p;
-                float dr = 1.0;
-                float r = 0.0;
-                for (int i = 0; i < 20; i++)
+                float dr = 1;
+                float r = 0;
+
+                for (int i = 0; i < MAX_ITERATIONS; i++)
                 {
                     r = length(z);
-                    if (r > 4.0) break;
-                    // convert to polar coordinates
+                    if (r > DEPTH_OF_FIELD) break;
+
                     float theta = acos(z.z / r);
                     float phi = atan2(z.y, z.x);
-                    dr = pow(r, _MandelDegree - 1.0) * _MandelDegree * dr + 1.0;
+                    dr = pow(r, POWER - 1.0) * POWER * dr + 1.0;
 
-                    // scale and rotate the point
-                    float zr = pow(r, _MandelDegree);
-                    theta = theta * _MandelDegree;
-                    phi = phi * _MandelDegree;
+                    float zr = pow(r, POWER);
+                    theta = theta * POWER;
+                    phi = phi * POWER;
 
-                    // convert back to cartesian coordinates
-                    z = zr * float3(sin(theta) * cos(phi), sin(phi) * sin(theta), cos(theta));
-                    z += p;
+                    z = float3(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
+                    z = z * zr + p;
                 }
 
-                return 0.5 * log(r) * r / dr;
+                return .5 * log(r) * r / dr;
             }
 
             float3 GetRegion(float3 p) // Not used currently

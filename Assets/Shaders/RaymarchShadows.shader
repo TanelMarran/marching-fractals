@@ -5,7 +5,19 @@
         _MainTex ("Texture", 2D) = "white" {}
         _LightDir ("Light Direction", Vector) = (0.0, 0.0, 0.0, 1.0)
         _Color ("Color", Color) = (1.0, 1.0, 1.0, 1.0)
-        _ShadowSoftness ("Shadow Softness", Range(0, 128)) = 10.0
+
+        [Header(Shadows)]
+        [Space]
+        _ShadowMinDistance ("Shadow Minimum Distance", Float) = 0.1
+        _ShadowMaxDistance ("Shadow Maximum Distance", Float) = 100
+        _ShadowSoftness ("Shadow Softness", Range(0, 128)) = 20.0
+        _ShadowIntensity ("Shadow Intensity", Float) = 2.5
+
+        [Header(Ambient Occlusion)]
+        [Space]
+        _AOStepsize ("Ambient Occlusion Step Size", Range(0.01, 10.0)) = 0.2
+        [IntRange] _AOIterations ("Ambient Occlusion Interations", Range(1, 5)) = 3
+        _AOIntensity ("Ambient Occlusion Intensity", Range(0, 1)) = 0.25
     }
     SubShader
     {
@@ -47,8 +59,14 @@
             fixed4 _LightDir;
             fixed4 _Color;
             StructuredBuffer<float4> spheres;
-            uniform int numberOfSpheres;
-            uniform float _ShadowSoftness;
+            int numberOfSpheres;
+            float _ShadowMinDistance;
+            float _ShadowMaxDistance;
+            float _ShadowSoftness;
+            float _ShadowIntensity;
+            float _AOStepsize;
+            int _AOIterations;
+            float _AOIntensity;
 
             v2f vert(appdata v)
             {
@@ -66,23 +84,53 @@
                 return -log2(res) / k;
             }
 
-            float sdPlane(float3 p, float3 n, float h)
+            float sdSphere(float3 p, float3 center, float radius)
+            {
+                return length(p - center) - radius;
+            }
+
+            float sdPlane(float3 p, float3 normal, float yHeight)
             {
                 // n must be normalized
-                return dot(p, n) + h;
+                return dot(p, normal) + yHeight;
+            }
+
+            float sdRoundBox(float3 p, float3 center, float3 size, float r)
+            {
+                float3 q = abs(p - center) - size;
+                return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0) - r;
+            }
+
+            float opSmoothSubtraction(float sdf1, float sdf2, float k)
+            {
+                float h = clamp(0.5 - 0.5 * (sdf2 + sdf1) / k, 0.0, 1.0);
+                return lerp(sdf2, -sdf1, h) + k * h * (1.0 - h);
             }
 
             float GetDist(float3 p)
             {
                 float d = MAX_DIST;
-                for (int i = 0; i < numberOfSpheres; i++) //Loop of all circles in scene
+
+                // Add Unity spheres
+                for (int i = 0; i < numberOfSpheres; i++) //Loop of all spheres in scene
                 {
                     float3 center = spheres[i].xyz; //Sphere center
                     float radius = spheres[i].w / 2.0; // radius
-                    d = smin(d, length(p - center) - radius, 3);
+                    d = smin(d, sdSphere(p, center, radius), 3);
                     // Distance from the current point to the edge of the closest sphere
                 }
-                d = min(d, sdPlane(p, float3(0, 1, 0), 0));
+                
+                // Add (round box - sphere)
+                float3 boxPos = float3(-3, 4, 0);
+                float boxMinusSphere = opSmoothSubtraction(
+                    sdSphere(p, boxPos, 4),
+                    sdRoundBox(p, boxPos, float3(3, 3, 3), 0.5),
+                    0.9
+                );
+                d = min(d, boxMinusSphere);
+                
+                // Add infinite plane
+                d = min(d, sdPlane(p, normalize(float3(0, 1, 0)), 2));
 
                 return d;
             }
@@ -144,6 +192,19 @@
                 return result;
             }
 
+            float AmbientOcclusion(float3 p, float3 n)
+            {
+                float step = _AOStepsize;
+                float ao = 0.0;
+                float dist;
+                for (int i = 1; i <= _AOIterations; i++)
+                {
+                    dist = step * i;
+                    ao += max(0.0, (dist - GetDist(p + n * dist)) / dist);
+                }
+                return (1.0 - ao * _AOIntensity);
+            }
+
             fixed4 frag(v2f i) : SV_Target
             {
                 float3 base = _Color * float3(0.8, 1.25, 0.95) / 1.25;
@@ -172,8 +233,14 @@
                     col = col * (1 - dp) + float4(base * s, 1.0) * dp;
 
                     // Shadow
-                    float shadow = SoftShadow(p, l, 0.1, 100, _ShadowSoftness);
+                    float shadow = SoftShadow(p, l, _ShadowMinDistance, _ShadowMaxDistance, _ShadowSoftness);
+                    shadow = shadow * 0.5 + 0.5;
+                    shadow = max(0.0, pow(shadow, _ShadowIntensity));
                     col *= shadow;
+
+                    // Ambient Occlusion
+                    float ao = AmbientOcclusion(p, n);
+                    col *= ao;
                 }
                 else
                 {

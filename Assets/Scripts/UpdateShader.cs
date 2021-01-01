@@ -1,7 +1,6 @@
 ﻿using System;
 using UnityEngine;
 
-[ExecuteInEditMode]
 public class UpdateShader : MonoBehaviour
 {
     public Transform lightTransform;
@@ -15,6 +14,7 @@ public class UpdateShader : MonoBehaviour
     private static readonly int LightDir = Shader.PropertyToID("_LightDir");
     private static readonly int Spheres = Shader.PropertyToID("spheres");
     private static readonly int NumberOfSpheres = Shader.PropertyToID("numberOfSpheres");
+    private static readonly int Power = Shader.PropertyToID("POWER");
     
     void Update()
     {
@@ -38,6 +38,7 @@ public class UpdateShader : MonoBehaviour
         _buffer.SetData(spheres);
         material.SetBuffer (Spheres, _buffer);
         material.SetInt(NumberOfSpheres, amountOfSpheres);
+        material.SetFloat(Power, Mathf.Sin(Time.time * Mathf.Deg2Rad * 8) * 2 + 8 );
     }
 
     void Start()

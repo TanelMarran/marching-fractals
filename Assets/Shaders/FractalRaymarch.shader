@@ -10,7 +10,7 @@
         SURF_DIST ("Surface Distance", float) = 0.01
         MAX_ITERATIONS ("Iterations", int) = 300
         DEPTH_OF_FIELD ("Depth of field", int) = 4
-        POWER ("Power", int) = 2
+        POWER ("Power", float) = 2
     }
     SubShader
     {
@@ -56,7 +56,7 @@
             float SURF_DIST;
             float MAX_ITERATIONS;
             float DEPTH_OF_FIELD;
-            int POWER;
+            float POWER;
             StructuredBuffer<float4> spheres;
             int numberOfSpheres;
 
@@ -76,13 +76,14 @@
                 return -log2(res) / k;
             }
 
-            float GetDist(float3 p)
+            float2 GetDist(float3 p)
             {
                 float3 z = p;
                 float dr = 1;
                 float r = 0;
 
-                for (int i = 0; i < MAX_ITERATIONS; i++)
+                int i;
+                for (i = 0; i < MAX_ITERATIONS; i++)
                 {
                     r = length(z);
                     if (r > DEPTH_OF_FIELD) break;
@@ -99,7 +100,7 @@
                     z = z * zr + p;
                 }
 
-                return .5 * log(r) * r / dr;
+                return float2(.5 * log(r) * r / dr, i);
             }
 
             float3 GetRegion(float3 p) // Not used currently
@@ -117,26 +118,30 @@
             {
                 float dO = 0; //The distance from the origin (camera) / distance the ray has marched
                 float dS; //The distance to the scene (closest object) in the current step
+                int iterations = 0;
                 for (int i = 0; i < MAX_STEPS; i++)
                 {
                     float3 p = ro + dO * rd; //Gets the current point by adding the distance marched to the origin
-                    dS = GetDist(p); //Get distance to scene
+
+                    float2 dist = GetDist(p);
+                    iterations = dist.y;
+                    dS = dist.x; //Get distance to scene
                     dO += dS; //Add the found distance to the total marched distance
                     if (dS < SURF_DIST || dO > MAX_DIST) break;
                     //If we hit an object or reach the render distance, end the loop.
                 }
 
-                return dO;
+                return float2(dO, iterations);
             }
 
             float3 GetNormal(float3 p) //Gets normals by sampling nearby points and and constructing a plane out of them
             {
-                float2 e = float2(0.01, 0);
+                float2 e = float2(SURF_DIST / 4.0, 0);
 
-                float3 n = GetDist(p) - float3(
-                    GetDist(p - e.xyy),
-                    GetDist(p - e.yxy),
-                    GetDist(p - e.yyx)
+                float3 n = GetDist(p).x - float3(
+                    GetDist(p - e.xyy).x,
+                    GetDist(p - e.yxy).x,
+                    GetDist(p - e.yyx).x
                 );
 
                 return normalize(n);
@@ -148,7 +153,9 @@
                 float3 ro = i.ro; // float3(0, 0, -3);
                 float3 rd = normalize(i.hitPos - ro); // normalize(float3(uv.x, uv.y, 1));
 
-                float d = Raymarch(ro, rd); //Gets the distance one ray travels
+                float2 raymarch = Raymarch(ro, rd);
+                float d = raymarch.x; //Gets the distance one ray travel
+                float iterations = raymarch.y;
                 fixed4 col;
 
                 if (d < MAX_DIST)
@@ -161,11 +168,13 @@
 
                     float3 v = normalize(- vertexPos);
                     float3 l = normalize(lightPos - vertexPos);
-                    float3 h = normalize(l + v);
 
-                    float3 litColor = _Color.xyz * (0.1 + max(0.0, dot(n, l))) + pow(max(0.0, dot(n, h)), 200.0);
+                    float3 litColor = _Color.xyz * (0.1 + max(0.0, dot(n, l)));
 
-                    col = float4(litColor.xyz, 1.0);
+                    litColor.x += iterations * 0.1;
+                    litColor.z += iterations * 0.05;
+
+                    col = float4(litColor.xyz * (1.0 - iterations / 12), 1.0);
                 }
                 else
                 {

@@ -48,7 +48,7 @@ public class CameraMovement : MonoBehaviour
             transform.Translate(new Vector3(0,-movementSpeed * Time.deltaTime,0), Space.World);
         }
 
-        if (Input.GetKey(KeyCode.Mouse2))
+        if (Input.GetKeyDown(KeyCode.Mouse1))
         {
             changeLockView();
         }

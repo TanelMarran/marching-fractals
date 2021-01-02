@@ -1,12 +1,13 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UpdateShader : MonoBehaviour
 {
     public Transform lightTransform;
     public Material material;
 
-    private Vector3 lightDirection;
+    public static Vector3 lightDirection;
 
     private ComputeBuffer _buffer;
     private int amountOfSpheres;
@@ -15,11 +16,28 @@ public class UpdateShader : MonoBehaviour
     private static readonly int Spheres = Shader.PropertyToID("spheres");
     private static readonly int NumberOfSpheres = Shader.PropertyToID("numberOfSpheres");
     private static readonly int Power = Shader.PropertyToID("POWER");
-    
+
+    private float red = 0.1f;
+    private float green = 0.5f;
+    private float blue = 0.9f;
+
+    public Slider S_red;
+    public Slider S_green;
+    public Slider S_blue;
+
+
+    public void colorChanged()
+    {
+        red = S_red.value;
+        green = S_green.value;
+        blue = S_blue.value;
+        Color col = new Color(red, green, blue, 1.0f);
+        material.SetColor("_Color", col);
+    }
+
+
     void Update()
     {
-        lightDirection = -lightTransform.forward;
-        
         material.SetVector(LightDir, new Vector4(lightDirection.x, lightDirection.y, lightDirection.z, 1.0f));
         UpdateBuffer();
     }
@@ -43,6 +61,9 @@ public class UpdateShader : MonoBehaviour
 
     void Start()
     {
+        Color col = new Color(red, green, blue, 1.0f);
+        material.SetColor("_Color", col);
+        lightDirection = -lightTransform.forward;
         int stride = System.Runtime.InteropServices.Marshal.SizeOf(typeof(Vector4));
         sphereObjects = GameObject.FindGameObjectsWithTag("Element");
         amountOfSpheres = sphereObjects.Length;

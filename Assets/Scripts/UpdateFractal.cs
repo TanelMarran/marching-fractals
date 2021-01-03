@@ -19,6 +19,7 @@ public class UpdateFractal : MonoBehaviour
     public Slider S_green;
     public Slider S_blue;
     public Slider S_surfDist;
+    public Toggle toggleMovement;
 
     public void colorChanged()
     {
@@ -38,7 +39,10 @@ public class UpdateFractal : MonoBehaviour
     void Update()
     {
         material.SetVector(LightDir, -lightTransform.forward);
-        material.SetFloat(Power, Mathf.Sin(Time.time * Mathf.Deg2Rad * 8) * 2 + 8);
+        if (toggleMovement.isOn)
+        {
+            material.SetFloat(Power, Mathf.Sin(Time.time * Mathf.Deg2Rad * 8) * 2 + 8);
+        }
     }
 
     void Start()
@@ -48,6 +52,7 @@ public class UpdateFractal : MonoBehaviour
         S_green = GameObject.FindGameObjectWithTag("slider_green").GetComponent<Slider>();
         S_blue = GameObject.FindGameObjectWithTag("slider_blue").GetComponent<Slider>();
         S_surfDist = GameObject.FindGameObjectWithTag("slider_surf_dist").GetComponent<Slider>();
+        toggleMovement = GameObject.FindGameObjectWithTag("toggle_movement").GetComponent<Toggle>();
 
         Color col = new Color(red, green, blue, 1.0f);
         material.SetColor("_Color", col);

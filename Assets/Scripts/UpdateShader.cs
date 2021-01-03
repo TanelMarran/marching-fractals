@@ -16,6 +16,13 @@ public class UpdateShader : MonoBehaviour
     private static readonly int Power = Shader.PropertyToID("POWER");
     private static readonly int Color = Shader.PropertyToID("_Color");
     private static readonly int CurrentTime = Shader.PropertyToID("_CurrentTime");
+    private static readonly int ShadowDistanceMin = Shader.PropertyToID("_ShadowMinDistance");
+    private static readonly int ShadowDistanceMax = Shader.PropertyToID("_ShadowMaxDistance");
+    private static readonly int ShadowSoftness = Shader.PropertyToID("_ShadowSoftness");
+    private static readonly int ShadowIntensity = Shader.PropertyToID("_ShadowIntensity");
+    private static readonly int AOStepsize = Shader.PropertyToID("_AOStepsize");
+    private static readonly int AOIterations = Shader.PropertyToID("_AOIterations");
+    private static readonly int AOIntensity = Shader.PropertyToID("_AOIntensity");
 
     private float red = 0.1f;
     private float green = 0.5f;
@@ -24,6 +31,14 @@ public class UpdateShader : MonoBehaviour
     public Slider S_red;
     public Slider S_green;
     public Slider S_blue;
+
+    private Slider sliderShadowDistanceMin;
+    private Slider sliderShadowDistanceMax;
+    private Slider sliderShadowSoftness;
+    private Slider sliderShadowIntensity;
+    private Slider sliderAOStepsize;
+    private Slider sliderAOIterations;
+    private Slider sliderAOIntensity;
 
 
     public void colorChanged()
@@ -34,6 +49,41 @@ public class UpdateShader : MonoBehaviour
 
         Color col = new Color(red, green, blue, 1.0f);
         material.SetColor(Color, col);
+    }
+
+    public void shadowMinDistanceChanged()
+    {
+        material.SetFloat(ShadowDistanceMin, sliderShadowDistanceMin.value);
+    }
+
+    public void shadowMaxDistanceChanged()
+    {
+        material.SetFloat(ShadowDistanceMax, sliderShadowDistanceMax.value);
+    }
+
+    public void shadowSoftnessChanged()
+    {
+        material.SetFloat(ShadowSoftness, sliderShadowSoftness.value);
+    }
+
+    public void shadowIntensityChanged()
+    {
+        material.SetFloat(ShadowIntensity, sliderShadowIntensity.value);
+    }
+
+    public void AOStepsizeChanged()
+    {
+        material.SetFloat(AOStepsize, sliderAOStepsize.value);
+    }
+
+    public void AOIterationsChanged()
+    {
+        material.SetInt(AOIterations, (int) sliderAOIterations.value);
+    }
+
+    public void AOIntensityChanged()
+    {
+        material.SetFloat(AOIntensity, sliderAOIntensity.value);
     }
 
 
@@ -74,8 +124,21 @@ public class UpdateShader : MonoBehaviour
         S_green = GameObject.FindGameObjectWithTag("slider_green").GetComponent<Slider>();
         S_blue = GameObject.FindGameObjectWithTag("slider_blue").GetComponent<Slider>();
 
+        if (material.name == "RaymarchShadows")
+        {
+            sliderShadowDistanceMin =
+                GameObject.FindGameObjectWithTag("slider_shadow_distance_min").GetComponent<Slider>();
+            sliderShadowDistanceMax =
+                GameObject.FindGameObjectWithTag("slider_shadow_distance_max").GetComponent<Slider>();
+            sliderShadowSoftness = GameObject.FindGameObjectWithTag("slider_shadow_softness").GetComponent<Slider>();
+            sliderShadowIntensity = GameObject.FindGameObjectWithTag("slider_shadow_intensity").GetComponent<Slider>();
+            sliderAOStepsize = GameObject.FindGameObjectWithTag("slider_ao_stepsize").GetComponent<Slider>();
+            sliderAOIterations = GameObject.FindGameObjectWithTag("slider_ao_iterations").GetComponent<Slider>();
+            sliderAOIntensity = GameObject.FindGameObjectWithTag("slider_ao_intensity").GetComponent<Slider>();
+        }
+
         Color col = new Color(red, green, blue, 1.0f);
-        material.SetColor("_Color", col);
+        material.SetColor(Color, col);
 
         if (material.name != "RaymarchShadows")
         {

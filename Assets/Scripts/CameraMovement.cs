@@ -1,20 +1,22 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraMovement : MonoBehaviour
 {
-    float movementSpeed = 5.0f;
+    public float movementSpeed = 5.0f;
     float mouseSensitivity = 200.0f;
-    bool lockView = false;
+    bool lockView = true;
     float rotationX = 0f;
     float rotationY = 0f;
 
     private GameObject UI;
+
     void start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
     // Update is called once per frame
@@ -58,6 +60,11 @@ public class CameraMovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             Application.Quit();
+        }
+
+        if (Input.mouseScrollDelta.y != 0)
+        {
+            movementSpeed = Mathf.Clamp(movementSpeed + Input.mouseScrollDelta.y * movementSpeed / 2.0f, 0.001f, 1.0f);
         }
 
         if (!lockView)

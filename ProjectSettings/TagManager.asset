@@ -10,7 +10,14 @@ TagManager:
   - slider_green
   - slider_blue
   - slider_surf_dist
-  - UI
+  - toggle_movement
+  - slider_shadow_distance_min
+  - slider_shadow_distance_max
+  - slider_shadow_softness
+  - slider_shadow_intensity
+  - slider_ao_stepsize
+  - slider_ao_iterations
+  - slider_ao_intensity
   layers:
   - Default
   - TransparentFX

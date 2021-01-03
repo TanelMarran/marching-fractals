@@ -113,15 +113,6 @@
             {
                 float d = MAX_DIST;
 
-                // Add Unity spheres
-                for (int i = 0; i < numberOfSpheres; i++) //Loop of all spheres in scene
-                {
-                    float3 center = spheres[i].xyz; //Sphere center
-                    float radius = spheres[i].w / 2.0; // radius
-                    d = smin(d, sdSphere(p, center, radius), 3);
-                    // Distance from the current point to the edge of the closest sphere
-                }
-                
                 // Add (round box - sphere)
                 float3 boxPos = float3(-3, 4, 0);
                 float3 spherePos = boxPos;
@@ -134,6 +125,10 @@
                     0.9
                 );
                 d = min(d, boxMinusSphere);
+
+                // Add sphere
+                float sphere = sdSphere(p, boxPos, 1);
+                d = min(d, sphere);
                 
                 // Add infinite plane
                 d = min(d, sdPlane(p, normalize(float3(0, 1, 0)), 2));

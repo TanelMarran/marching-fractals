@@ -25,4 +25,10 @@ public class UI_Logic : MonoBehaviour
         direction.y = -Math.Abs(direction.y);
         UpdateShader.lightTransform.forward = direction;
     }
+    
+    public void randomLightDirectionFractal()
+    {
+        Vector3 direction = Vector3.Normalize(Random.insideUnitSphere);
+        UpdateFractal.lightTransform.forward = direction;
+    }
 }

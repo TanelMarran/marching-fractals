@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class UpdateFractal : MonoBehaviour
 {
-    public Transform lightTransform;
+    public static Transform lightTransform;
     public Material material;
 
     private static readonly int LightDir = Shader.PropertyToID("_LightDir");

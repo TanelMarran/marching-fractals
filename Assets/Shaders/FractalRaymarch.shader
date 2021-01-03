@@ -167,7 +167,7 @@
                     float3 l = normalize(_LightDir.xyz);
                     float3 h = normalize(l + v);
 
-                    float3 litColor = _Color.xyz * (0.1 + max(0.0, dot(n, l))) + pow(max(0.0, dot(n, h)), 1000.0);
+                    float3 litColor = _Color.xyz * (0.1 + max(0.0, dot(n, l)));// + pow(max(0.0, dot(n, h)), 1000.0);
 
                     litColor.x += iterations * 0.1;
                     litColor.z += iterations * 0.05;

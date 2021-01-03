@@ -83,4 +83,4 @@ Material:
     m_Colors:
     - _Color: {r: 0.1, g: 0.5, b: 0.9, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _LightDir: {r: 0.6538347, g: 0.05390325, b: -0.7547149, a: 0}
+    - _LightDir: {r: -0, g: 0.47245696, b: -0.88135374, a: 0}

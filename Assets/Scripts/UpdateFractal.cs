@@ -7,8 +7,6 @@ public class UpdateFractal : MonoBehaviour
     public Transform lightTransform;
     public Material material;
 
-    private Vector3 lightDirection;
-    
     private static readonly int LightDir = Shader.PropertyToID("_LightDir");
     private static readonly int Power = Shader.PropertyToID("POWER");
 
@@ -39,28 +37,21 @@ public class UpdateFractal : MonoBehaviour
 
     void Update()
     {
-        lightDirection = -lightTransform.forward;
-        
-        material.SetVector(LightDir, new Vector4(lightDirection.x, lightDirection.y, lightDirection.z, 1.0f));
-        UpdateBuffer();
-    }
-
-    void UpdateBuffer()
-    {
-        material.SetFloat(Power, Mathf.Sin(Time.time * Mathf.Deg2Rad * 8) * 2 + 8 );
+        material.SetVector(LightDir, -lightTransform.forward);
+        material.SetFloat(Power, Mathf.Sin(Time.time * Mathf.Deg2Rad * 8) * 2 + 8);
     }
 
     void Start()
     {
+        lightTransform = GameObject.FindGameObjectWithTag("Light").transform;
+        S_red = GameObject.FindGameObjectWithTag("slider_red").GetComponent<Slider>();
+        S_green = GameObject.FindGameObjectWithTag("slider_green").GetComponent<Slider>();
+        S_blue = GameObject.FindGameObjectWithTag("slider_blue").GetComponent<Slider>();
+        S_surfDist = GameObject.FindGameObjectWithTag("slider_surf_dist").GetComponent<Slider>();
+
         Color col = new Color(red, green, blue, 1.0f);
         material.SetColor("_Color", col);
         surfDist = S_surfDist.value;
         material.SetFloat("SURF_DIST", surfDist);
-        UpdateBuffer();
-    }
-
-    private void OnDestroy()
-    {
-        //_buffer?.Release();
     }
 }

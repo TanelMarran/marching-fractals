@@ -10,9 +10,11 @@ public class CameraMovement : MonoBehaviour
     float rotationX = 0f;
     float rotationY = 0f;
 
+    private GameObject UI;
     void start()
     {
         Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     // Update is called once per frame
@@ -20,37 +22,42 @@ public class CameraMovement : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.D))
         {
-            transform.Translate(new Vector3(movementSpeed * Time.deltaTime,0,0));
+            transform.Translate(new Vector3(movementSpeed * Time.deltaTime, 0, 0));
         }
 
         if (Input.GetKey(KeyCode.A))
         {
-            transform.Translate(new Vector3(-movementSpeed * Time.deltaTime,0,0));
+            transform.Translate(new Vector3(-movementSpeed * Time.deltaTime, 0, 0));
         }
 
         if (Input.GetKey(KeyCode.W))
         {
-            transform.Translate(new Vector3(0,0,movementSpeed * Time.deltaTime));
+            transform.Translate(new Vector3(0, 0, movementSpeed * Time.deltaTime));
         }
 
         if (Input.GetKey(KeyCode.S))
         {
-            transform.Translate(new Vector3(0,0,-movementSpeed * Time.deltaTime));
+            transform.Translate(new Vector3(0, 0, -movementSpeed * Time.deltaTime));
         }
 
         if (Input.GetKey(KeyCode.Space))
         {
-            transform.Translate(new Vector3(0,movementSpeed * Time.deltaTime,0), Space.World);
+            transform.Translate(new Vector3(0, movementSpeed * Time.deltaTime, 0), Space.World);
         }
 
         if (Input.GetKey(KeyCode.LeftControl))
         {
-            transform.Translate(new Vector3(0,-movementSpeed * Time.deltaTime,0), Space.World);
+            transform.Translate(new Vector3(0, -movementSpeed * Time.deltaTime, 0), Space.World);
         }
 
         if (Input.GetKeyDown(KeyCode.Mouse1))
         {
             changeLockView();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
         }
 
         if (!lockView)
@@ -62,19 +69,21 @@ public class CameraMovement : MonoBehaviour
             rotationY += mouseX;
             transform.localRotation = Quaternion.Euler(rotationX, rotationY, 0f);
         }
-
-         
     }
 
     void changeLockView()
     {
-        if (lockView == false)
+        lockView = !lockView;
+
+        if (lockView)
         {
-            lockView = true;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
         else
         {
-            lockView = false;
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         }
     }
 }

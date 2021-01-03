@@ -135,9 +135,7 @@
                     float3 p = ro + d * rd;
                     float3 n = GetNormal(p);
 
-                    float3 vertexPos = normalize(i.vertex);
-
-                    float3 v = normalize(- vertexPos);
+                    float3 v = -rd;
                     float3 l = normalize(_LightDir.xyz);
                     float3 h = normalize(l + v);
 

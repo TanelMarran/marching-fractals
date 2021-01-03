@@ -60,6 +60,7 @@
             fixed4 _Color;
             StructuredBuffer<float4> spheres;
             int numberOfSpheres;
+            
             float _ShadowMinDistance;
             float _ShadowMaxDistance;
             float _ShadowSoftness;
@@ -67,6 +68,7 @@
             float _AOStepsize;
             int _AOIterations;
             float _AOIntensity;
+            float _CurrentTime;
 
             v2f vert(appdata v)
             {
@@ -122,8 +124,12 @@
                 
                 // Add (round box - sphere)
                 float3 boxPos = float3(-3, 4, 0);
+                float3 spherePos = boxPos;
+                spherePos.y += sin(_CurrentTime);
+                float sphereRadius = 4 + cos(_CurrentTime / 3) / 2;
+                
                 float boxMinusSphere = opSmoothSubtraction(
-                    sdSphere(p, boxPos, 4),
+                    sdSphere(p, spherePos, sphereRadius),
                     sdRoundBox(p, boxPos, float3(3, 3, 3), 0.5),
                     0.9
                 );
@@ -220,25 +226,27 @@
                     float3 n = GetNormal(p);
 
                     // Lighting
-                    float3 vertexPos = normalize(i.vertex);
-                    float3 v = normalize(- vertexPos);
+                    float3 v = -rd;
                     float3 l = normalize(_LightDir.xyz);
                     float3 h = normalize(l + v);
 
-                    float3 litColor = _Color.xyz * (0.1 + max(0.0, dot(n, l))) + pow(max(0.0, dot(n, h)), 200.0);
+                    // Shadow
+                    float shadow = SoftShadow(p, l, _ShadowMinDistance, _ShadowMaxDistance, _ShadowSoftness);
+                    shadow = shadow * 0.5 + 0.5;
+                    shadow = max(0.0, pow(shadow, _ShadowIntensity));
+
+                    // Apply lighting
+                    float3 litColor = _Color.xyz * (0.1 + max(0.0, dot(n, l))) + pow(max(0.0, dot(n, h)), 200.0) * shadow;
 
                     col = float4(litColor.xyz, 1.0);
                     float s = 0.2;
                     float dp = d / MAX_DIST;
                     col = col * (1 - dp) + float4(base * s, 1.0) * dp;
 
-                    // Shadow
-                    float shadow = SoftShadow(p, l, _ShadowMinDistance, _ShadowMaxDistance, _ShadowSoftness);
-                    shadow = shadow * 0.5 + 0.5;
-                    shadow = max(0.0, pow(shadow, _ShadowIntensity));
+                    // Apply shadow
                     col *= shadow;
 
-                    // Ambient Occlusion
+                    // Ambient Occlusion + apply
                     float ao = AmbientOcclusion(p, n);
                     col *= ao;
                 }

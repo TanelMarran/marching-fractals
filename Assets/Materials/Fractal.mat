@@ -26,11 +26,12 @@ Material:
     m_Floats:
     - DEPTH_OF_FIELD: 4
     - MAX_ITERATIONS: 60
-    - POWER: 9.895388
+    - POWER: 9.724503
     - SURF_DIST: 0.001
     - _Gamma: 2.2
     - _MandelDegree: 8
     - _MandelIterations: 85
     m_Colors:
     - _Color: {r: 0.1, g: 0.5, b: 0.9, a: 1}
+    - _LightDir: {r: 0.3213938, g: 0.76604444, b: -0.5566705, a: 0}
     - _LightPos: {r: 20.36, g: 1.19, b: -6.64, a: 1}

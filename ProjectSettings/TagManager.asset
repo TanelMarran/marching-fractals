@@ -6,6 +6,11 @@ TagManager:
   tags:
   - Light
   - Element
+  - slider_red
+  - slider_green
+  - slider_blue
+  - slider_surf_dist
+  - UI
   layers:
   - Default
   - TransparentFX

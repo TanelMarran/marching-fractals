@@ -3,7 +3,7 @@
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _LightPos ("Light Position", Vector) = (0.0, 4.05, -3.62, 1.0)
+        _LightDir ("Light Direction", Vector) = (0.0, 4.05, -3.62, 1.0)
         _Color ("Color", Color) = (1.0, 1.0, 1.0, 1.0)
         _MandelDegree ("Madelbulb degree", Float) = 8.0
         _MandelIterations ("Madelbulb iterations", int) = 100.0
@@ -49,7 +49,7 @@
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            fixed4 _LightPos;
+            fixed4 _LightDir;
             fixed4 _Color;
             float _MandelDegree;
             float _MandelIterations;
@@ -163,13 +163,11 @@
                     float3 p = ro + d * rd;
                     float3 n = GetNormal(p);
 
-                    float3 lightPos = _LightPos.xyz;
-                    float3 vertexPos = normalize(i.vertex);
+                    float3 v = -rd;
+                    float3 l = normalize(_LightDir.xyz);
+                    float3 h = normalize(l + v);
 
-                    float3 v = normalize(- vertexPos);
-                    float3 l = normalize(lightPos - vertexPos);
-
-                    float3 litColor = _Color.xyz * (0.1 + max(0.0, dot(n, l)));
+                    float3 litColor = _Color.xyz * (0.1 + max(0.0, dot(n, l))) + pow(max(0.0, dot(n, h)), 1000.0);
 
                     litColor.x += iterations * 0.1;
                     litColor.z += iterations * 0.05;

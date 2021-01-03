@@ -1,37 +1,28 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Random = UnityEngine.Random;
 
-public class UI_Logic : MonoBehaviour {
-
+public class UI_Logic : MonoBehaviour
+{
     public void changeScene()
     {
-        Scene scene = SceneManager.GetActiveScene();
-        string name = scene.name;
-        if (name == "MandleBulb")
+        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        int nextSceneIndex = ++currentSceneIndex;
+        if (nextSceneIndex == SceneManager.sceneCountInBuildSettings)
         {
-            SceneManager.LoadScene("Cube");
-        } else
-        {
-            SceneManager.LoadScene("MandleBulb");
+            nextSceneIndex = 0;
         }
+
+        SceneManager.LoadScene(nextSceneIndex);
     }
 
     public void randomLightDirection()
     {
-        UpdateShader.lightDirection = Vector3.Normalize(Random.insideUnitSphere);
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
- 
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        Vector3 direction = Vector3.Normalize(Random.insideUnitSphere);
+        direction.y = -Math.Abs(direction.y);
+        UpdateShader.lightTransform.forward = direction;
     }
 }

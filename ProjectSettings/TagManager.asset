@@ -18,6 +18,7 @@ TagManager:
   - slider_ao_stepsize
   - slider_ao_iterations
   - slider_ao_intensity
+  - UI
   layers:
   - Default
   - TransparentFX

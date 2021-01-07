@@ -11,12 +11,16 @@ public class CameraMovement : MonoBehaviour
     float rotationX = 0f;
     float rotationY = 0f;
 
-    private GameObject UI;
+    private Canvas UI;
+    private float maxMovementSpeed;
 
-    void start()
+    void Start()
     {
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+        maxMovementSpeed = movementSpeed;
+        
+        UI = GameObject.FindWithTag("UI").GetComponent<Canvas>();
     }
 
     // Update is called once per frame
@@ -64,7 +68,7 @@ public class CameraMovement : MonoBehaviour
 
         if (Input.mouseScrollDelta.y != 0)
         {
-            movementSpeed = Mathf.Clamp(movementSpeed + Input.mouseScrollDelta.y * movementSpeed / 2.0f, 0.001f, 1.0f);
+            movementSpeed = Mathf.Clamp(movementSpeed + Input.mouseScrollDelta.y * movementSpeed / 2.0f, 0.001f, maxMovementSpeed);
         }
 
         if (!lockView)
@@ -86,11 +90,13 @@ public class CameraMovement : MonoBehaviour
         {
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
+            UI.enabled = true;
         }
         else
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
+            UI.enabled = false;
         }
     }
 }

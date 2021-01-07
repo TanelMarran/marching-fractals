@@ -56,9 +56,9 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - _AOIntensity: 0.25
+    - _AOIntensity: 0.30327561
     - _AOIterations: 3
-    - _AOStepsize: 0.2
+    - _AOStepsize: 0.4027501
     - _BoxSmoothness: 0.92
     - _BumpScale: 1
     - _Cutoff: 0.5
@@ -71,10 +71,10 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _ShadowIntensity: 2.5
-    - _ShadowMaxDistance: 100
-    - _ShadowMinDistance: 0.1
-    - _ShadowSoftness: 20
+    - _ShadowIntensity: 1.2822723
+    - _ShadowMaxDistance: 200
+    - _ShadowMinDistance: 0.31599388
+    - _ShadowSoftness: 128
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -83,4 +83,4 @@ Material:
     m_Colors:
     - _Color: {r: 0.1, g: 0.5, b: 0.9, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _LightDir: {r: 0.87567866, g: 0.15242594, b: -0.4582066, a: 0}
+    - _LightDir: {r: 0.32808307, g: 0.2152059, b: 0.9198086, a: 0}
